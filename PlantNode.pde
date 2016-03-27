@@ -1,18 +1,27 @@
 class PlantNode
 {
-  ArrayList<PlantNode> connectedNodes = new ArrayList<PlantNode>();
+  ArrayList<NodeConnection> childConnections = new ArrayList<NodeConnection>();
   
   public float[] pos = new float[3];
   public float[] force = new float[3];
+  public float[] growDir = new float[]{random(1),random(1),0};
+  public float updateCounter = random(10);
   
-  void update()
+  void update(float elapsedSeconds)
   {
-    pos[0]+=force[0]/10;
-    pos[1]+=force[1]/10;
-    pos[2]+=force[2]/10;
-    force[0]*=.99;
-    force[1]*=.99;
-    force[2]*=.99;
+    if(updateCounter < 0)
+    {
+//      for(NodeConnection c : childConnections)
+//    { c.relaxedLength += .02; }
+      //updateCounter = random(10);
+    }
+    else
+    {
+      updateCounter -= elapsedSeconds;
+    }
+    pos[0]+=elapsedSeconds*force[0];
+    pos[1]+=elapsedSeconds*force[1];
+    pos[2]+=elapsedSeconds*force[2];
   }
   
   void draw()
