@@ -4,8 +4,7 @@ class PlantNode
   
   public float[] pos = new float[3];
   public float[] force = new float[3];
-  public float[] growDir = new float[]{random(1),random(1),0};
-  public float updateCounter = random(10);
+  public float updateCounter = .5+random(2);
   
   void update(float elapsedSeconds)
   {

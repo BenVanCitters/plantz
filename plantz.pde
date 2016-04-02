@@ -1,11 +1,9 @@
 Plant p = new Plant();
 long lastNanoTimeStamp;
 
-
-
 void setup()
 {
-  size(500,500,OPENGL);
+  size(700,700,OPENGL);
   fillInNodes();
   lastNanoTimeStamp = System.nanoTime();
 }
@@ -13,7 +11,7 @@ void setup()
 void fillInNodes()
 {
   PlantNode starterNode = new PlantNode();
-  starterNode.pos = new float[]{250,250,0};
+  starterNode.pos = new float[]{0,0,0};
   p.nodes.add(starterNode);
 }
 
@@ -26,7 +24,12 @@ void draw()
   
   start = System.nanoTime();
   background(0);
+  pushMatrix();
+  translate(width/2,height/2);
+  rotateX(millis()/5000.f);
+  rotateZ(millis()/5000.f);
   p.draw();
+  popMatrix();
   long drawDuration = System.nanoTime()-start;
   debugPrint(updateDuration,drawDuration);
   
@@ -35,9 +38,9 @@ void draw()
 //ellipse(mouseX,mouseY,60*2,60*2);
   if(mousePressed)
   {
-//    newPoint(new float[]{mouseX,mouseY,random(1)});
-    for(int i = 0; i < 100; i++)
-      newPoint(new float[]{random(width),random(height),random(1)});
+    newPoint(new float[]{mouseX-width/2,mouseY-height/2,random(1)});
+//    for(int i = 0; i < 100; i++)
+//      newPoint(new float[]{random(width),random(height),random(1)});
   }
   lastNanoTimeStamp = System.nanoTime();
 }

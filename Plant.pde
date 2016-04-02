@@ -13,13 +13,13 @@ class Plant
   void update(float elapsedSeconds)
   {
     //update physics
-    int iC = 10-nodeConnections.size();
+    int iC = 70-nodeConnections.size();
     for(NodeConnection c : nodeConnections)
     { 
       c.update(elapsedSeconds); 
       if(++iC > 0)
       {
-        c.relaxedLength += .1; 
+        c.relaxedLength += .6; 
       } 
     }
     
@@ -32,36 +32,68 @@ class Plant
       pn.force[0]*=forceDamping; pn.force[1]*=forceDamping; pn.force[2]*=forceDamping;
       if(pn.updateCounter < 0 && pn.childConnections.size() < 1)
       {
-        newNodes.add(sprout(pn));
+        PlantNode new1 = sprout(pn);
+        PlantNode new2 = sprout(pn);
+        newNodes.add(new1);
+        newNodes.add(new2);
+        
+        connect(new1,new2,1000);
       }
     }
     nodes.addAll(newNodes);
+  }
+  
+  NodeConnection connect(PlantNode nodeA, PlantNode nodeB, float minDist)
+  {
+    NodeConnection con1 = new NodeConnection();
+    con1.node1 = nodeA;
+    con1.node2 = nodeB;
+    float distance = dist(nodeA.pos[0],nodeA.pos[1],nodeA.pos[2],
+                          nodeB.pos[0],nodeB.pos[1],nodeB.pos[2]);
+    con1.relaxedLength = distance;// + random(-distance*.8,distance*.8);
+    con1.springForce = .8;
+    if(distance < minDist)
+    {
+      addConnection(con1);
+      return con1;
+    }
+    return null;
   }
   
   PlantNode sprout(PlantNode node)
   {
     PlantNode newNode = new PlantNode();
 //    println("node.growDir[]: " + node.growDir[0] + "," + node.growDir[1] + "," + node.growDir[2] );
-    newNode.pos = new float[]{node.pos[0] + node.growDir[0]+(random(.1)-.05),
-                              node.pos[1] + node.growDir[1]+(random(.1)-.05),
-                              node.pos[2] + node.growDir[2]+(random(.1)-.05)};
+    float rndAmt = .05;
+    newNode.pos = new float[]{node.pos[0] + node.force[0]/2+(random(rndAmt)-rndAmt/2),
+                              node.pos[1] + node.force[1]/2+(random(rndAmt)-rndAmt/2),
+                              node.pos[2] + node.force[2]/2+(random(rndAmt)-rndAmt/2)};
                               
-    newNode.growDir[0] = node.growDir[0];
-    newNode.growDir[1] = node.growDir[1];
-    newNode.growDir[2] = node.growDir[2];
-
-    NodeConnection con1 = new NodeConnection();
-    con1.node1 = newNode;
-    con1.node2 = node;
-    float distance = dist(con1.node1.pos[0],con1.node1.pos[1],con1.node1.pos[2],
-                          con1.node2.pos[0],con1.node2.pos[1],con1.node2.pos[2]);
-    con1.relaxedLength = distance;// + random(-distance*.8,distance*.8);
-    con1.springForce = .8;
-//    if(distance < 60)
-    nodeConnections.add(con1);
-    node.childConnections.add(con1);
+    node.childConnections.add(connect(node, newNode,10000));
+    
+    ArrayList<PlantNode> tmp= getNearestNeighbors( newNode.pos);
+    int count = min(tmp.size(),5);
+  for(int i = 0; i < count; i++)
+//  for(PlantNode nd : tmp)
+    {
+      connect(newNode,tmp.get(i),20);
+    }
     return newNode;
   }
+  
+  void addConnection(NodeConnection con)
+  {
+    //make sure that we don't add duplicate connections
+    for(NodeConnection oldCon : nodeConnections)
+    {
+      if(oldCon.node1 == con.node1 && oldCon.node2 == con.node2)
+        return;
+      if(oldCon.node2 == con.node1 && oldCon.node1 == con.node2)
+        return;
+    }
+    nodeConnections.add(con);
+  }
+  
   
   void draw()
   {
@@ -74,7 +106,7 @@ class Plant
     endShape();
     for(PlantNode p : nodes)
     {
-      p.draw();
+//      p.draw();
     }
   }
   
